@@ -209,6 +209,7 @@ class PostApp(wx.Frame):
         driver.switch_to.frame(iframe)
         content_element = get_element_by_xpath(driver, '/html/body')
         content_element.send_keys(content)
+
         driver.switch_to.default_content()
 
     def upload_web_images(self, driver, file_item, mine_type):
@@ -217,8 +218,11 @@ class PostApp(wx.Frame):
         apply_xpath = '/html/body/div[1]/div/div[2]/button'
 
         if mine_type == 'image':
+            print('print')
             photo_link = get_element_by_xpath(driver, '//*[@id="tx_image"]/a')
             photo_link.click()
+            print('print2')
+
         elif mine_type == 'video':
             vidio_link = get_element_by_xpath(driver, '//*[@id="tx_movie"]/a')
             vidio_link.click()
@@ -280,8 +284,7 @@ class PostApp(wx.Frame):
         content = self.text_widget.GetValue()
         font_weight_element_xpath = "/html/body/div[2]/main/section/article[2]/form/div[3]/div/div[2]/div/ul[3]/li[1]/div/a"
         font_size_list_element_xpath = "/html/body/div[2]/main/section/article[2]/form/div[3]/div/div[2]/div/ul[2]/li/div[1]/a"
-        apply_button_xpath = "/html/body/div[2]/main/section/article[2]/form/div[5]/button[2]"
-
+        apply_button_xpath = '//*[@id="write"]/div[5]/button[2]'
         # 글쓰기 버튼
         element = get_clickable_element_by_xpath(driver, '/html/body/div[2]/div[3]/main/section[1]/article[2]/div[3]/div[2]/button')
         # 요소 클릭
@@ -348,8 +351,9 @@ class PostApp(wx.Frame):
             '36px': '//*[@id="tx_fontsize_menu"]/ul/li[9]/a'
         }
 
-        font_size_element = get_element_by_xpath(driver, size_to_xpath[selected_size])
-        font_size_element.click()
+        if selected_size:
+            font_size_element = get_element_by_xpath(driver, size_to_xpath[selected_size])
+            font_size_element.click()
 
         if len(self.file_list) > 0:
             for file_item in self.file_list:
@@ -398,10 +402,12 @@ class PostApp(wx.Frame):
 
         apply_button = get_element_by_xpath(driver, apply_button_xpath)
         apply_button.click()
+        time.sleep(3)
+        # current_url = driver.current_url
+        # wait = WebDriverWait(driver, 30)
+        # wait.until(EC.url_changes(current_url))
+        # time.sleep(100)
 
-        current_url = driver.current_url
-        wait = WebDriverWait(driver, 10)
-        wait.until(EC.url_changes(current_url))
 
     def run_post_board(self):
         # 웹드라이버 초기화
@@ -505,7 +511,7 @@ class PostApp(wx.Frame):
     def on_load(self, event):
         filepath = wx.FileDialog(self, "Open TXT file", wildcard="TXT files (*.txt)|*.txt", style=wx.FD_OPEN)
         if filepath.ShowModal() == wx.ID_OK:
-            with open(filepath.GetPath(), 'r') as file:
+            with open(filepath.GetPath(), 'r', encoding='utf-8') as file:
                 self.data_list = file.read().split('\n')
                 self.url_text_widget.SetValue('\n'.join(self.data_list))
 
